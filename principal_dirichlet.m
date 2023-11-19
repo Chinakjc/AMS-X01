@@ -64,11 +64,11 @@ LL = MM*FF;
 % Projection sur l espace V_0
 % ———————————————————
 % matrice de projection 
-PP = sparse(Nbpt,Nbpt);
-for indice = 1:Nbpt
-    if Refneu(indice) == 0
-        PP(indice,indice) = 1;
-    end
+Point_interieur = find(Refneu == 0);
+Nbpt_interieur = size(Point_interieur,1);
+PP = sparse(Nbpt_interieur,Nbpt);
+for indice = 1:Nbpt_interieur
+    PP(indice,Point_interieur(indice)) = 1;
 end
 AA = MM+KK;
 AA0 = PP*AA*PP';
@@ -90,14 +90,18 @@ validation = 'oui';
 % validation
 % ----------
 if strcmp(validation,'oui')
-UU_exact = sin(pi*Coorneu(:,1)).*sin(2*pi*Coorneu(:,2));
+%UU_exact = sin(pi*Coorneu(:,1)).*sin(2*pi*Coorneu(:,2));
+UU_exact = sin(pi*Coorneu(:,1)).*sin(pi*Coorneu(:,2));
 affiche(UU_exact, Numtri, Coorneu, sprintf('Dirichlet -exact %s', nom_maillage));
 % Calcul de l erreur L2
 % A COMPLETER
 errU = UU_exact - UU;
+errU0 = PP*errU;
 errL2 = sqrt(errU' * (MM * errU));
+%errL2 = sqrt(errU0' * (PP*MM*PP' * errU0));
 % Calcul de l erreur H1
 errH1 = sqrt(errL2^2 + errU' * (KK*errU));
+%errH1 = sqrt(errU0' * AA0 * errU0);
 % A COMPLETER
 printf("erreur L2 = %f et erreur H1 = %f", errL2,errH1);
 % attention de bien changer le terme source (dans FF)
