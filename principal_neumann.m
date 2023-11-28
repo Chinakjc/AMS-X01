@@ -20,9 +20,10 @@ func_f = @(x, y) 4*pi*pi*cos(pi*x).*cos(2*pi*y).*sin(2*pi*x).*sin(2*pi*y) + ...
                  cos(pi*x).*cos(2*pi*y); %Question 9,10,11
 
 func_A = @(x,y) sin(2*pi*x).*sin(2*pi*y) + 2; %Question 9,10,11
+
 get_A_func = @(epsilon) (@(x,y) func_A(epsilon*x,epsilon*y)); %Question 11
 validation = 'oui'; %Question 6,7,9,10
-avec_epsilons = 'oui';%'non';%'oui'; %Question 11
+avec_epsilons = 'non';%'oui'; %Question 11
 
 errsL2 = [];
 errsH1 = [];
@@ -144,10 +145,10 @@ if strcmp(validation,'oui')
 figure();
 
 % affichage de l'erreur en norme L2
-scatter(log2(hs), log2(errsL2), 'r', 'DisplayName', 'erreur L2');
+scatter(-log2(hs), log2(errsL2), 'r', 'DisplayName', 'erreur L2');
 hold on;
 % affichage de l'erreur en norme H1
-scatter(log2(hs), log2(errsH1), 'b', 'DisplayName', 'erreur H1');
+scatter(-log2(hs), log2(errsH1), 'b', 'DisplayName', 'erreur H1');
 
 % asymptote L2
 x_last_two = log2(hs(end-1:end));
@@ -156,8 +157,8 @@ y_last_two_L2 = log2(errsL2(end-1:end));
 slope_L2 = (y_last_two_L2(2) - y_last_two_L2(1)) / (x_last_two(2) - x_last_two(1));
 intercept_L2 = y_last_two_L2(2) - slope_L2 * x_last_two(2);
 
-x_asymptote_L2 = linspace(min(log2(hs)), max(log2(hs)), 100);
-y_asymptote_L2 = slope_L2 * x_asymptote_L2 + intercept_L2;
+x_asymptote_L2 = linspace(min(-log2(hs)), max(-log2(hs)), 128);
+y_asymptote_L2 = -slope_L2 * x_asymptote_L2 + intercept_L2;
 
 plot(x_asymptote_L2, y_asymptote_L2, '--r', 'DisplayName', 'Asymptote L2');
 
@@ -167,14 +168,14 @@ y_last_two_H1 = log2(errsH1(end-1:end));
 slope_H1 = (y_last_two_H1(2) - y_last_two_H1(1)) / (x_last_two(2) - x_last_two(1));
 intercept_H1 = y_last_two_H1(2) - slope_H1 * x_last_two(2);
 
-y_asymptote_H1 = slope_H1 * x_asymptote_L2 + intercept_H1;
+y_asymptote_H1 = -slope_H1 * x_asymptote_L2 + intercept_H1;
 
 plot(x_asymptote_L2, y_asymptote_H1, '--b', 'DisplayName', 'Asymptote H1');
 
 hold off;
 
 legend();
-title('Erreur en fonction de h en échelle log2');
+title('Erreur en fonction de 1/h en échelle log2');
 
 % changement des echelles des axes
 set(gca, 'xticklabel', arrayfun(@(x) ['2^{' num2str(x) '}'], get(gca, 'xtick'), 'UniformOutput', false));
