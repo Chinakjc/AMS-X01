@@ -30,7 +30,8 @@ colorbar;
 
 % ajouter eventuellement un titre
 title(titre);
-  
+drawnow; % force le dessin de la figure
+set(gcf, 'Position', [100, 100, 800, 600]);  % change la taille de la figure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        fin de la routine
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

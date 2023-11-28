@@ -13,8 +13,8 @@ function val = mat_A(x,y)%,epsilon)
 %A COMPLETER
 %val = [1 0;0 1];
 %val = [1 0;0 2];
-%val = [2+sin(2*pi*x) 0;0 4+sin(2*pi*x)];
-val = [2+sin(2*pi*x) 0;0 4];
+val = [2+sin(2*pi*x) 0;0 4+sin(2*pi*x)];
+%val = [2+sin(2*pi*x) 0;0 4];
 %val = sin(epsilon*2*pi*x)*sin(epsilon*2*pi*y) + 2;
 %val = (2+sin(2*pi*x))*(4+sin(2*pi*y));
 %val = [2+sin(2*pi*x/10) 0;0 2+sin(2*pi*x/10)];

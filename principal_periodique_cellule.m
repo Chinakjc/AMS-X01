@@ -63,9 +63,9 @@ end % for l
 XX = Coorneu(:,1);
 YY = Coorneu(:,2);
 
-%e1 = grad XX et e2 = grad YY, LLX = K*XX et LLY = K*YY
-LLX = KK*XX;
-LLY = KK*YY;
+%e1 = grad XX et e2 = grad YY, LLX = -K*XX et LLY = -K*YY
+LLX = -KK*XX;
+LLY = -KK*YY;
 
 % Projection sur l espace V_p
 % ———————————————————
@@ -129,10 +129,10 @@ affiche(W2, Numtri, Coorneu, sprintf('Cellule i=2 - %s', nom_maillage));
 %tenseur homogeneise
 Aeff = zeros(2,2);
 
-Aeff(1,1) = (XX - W1)' * (KK * (XX - W1));
-Aeff(1,2) = (XX - W1)' * (KK * (YY - W2));
-Aeff(2,1) = (YY - W2)' * (KK * (XX - W1));
-Aeff(2,2) = (YY - W2)' * (KK * (YY - W2));
+Aeff(1,1) = (XX + W1)' * (KK * (XX + W1));
+Aeff(1,2) = (XX + W1)' * (KK * (YY + W2));
+Aeff(2,1) = (YY + W2)' * (KK * (XX + W1));
+Aeff(2,2) = (YY + W2)' * (KK * (YY + W2));
 
 Aeff 
 
