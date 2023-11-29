@@ -10,10 +10,32 @@
 %
 % =====================================================
 
+func_u_exact = @(x,y) cos(pi*x).*cos(2*pi*y);%Question 18
+func_f = @(x,y) (1+5*pi*pi)*cos(pi*x).*cos(2*pi*y); %Question 18
+func_A = @(x,y) 1; %Question 18
 
+
+validation = 'oui'; %Question 16
+
+
+errsL2 = [];
+errsH1 = [];
+
+
+if strcmp(validation,'oui')
+maillages = {"validation/geomCarre_per2.msh", "validation/geomCarre_per3.msh", "validation/geomCarre_per4.msh", "validation/geomCarre_per5.msh"};
+hs = [1/4, 1/8, 1/16, 1/32];
+else
+maillages = {'validation/geomCarre_per5.msh'};
+hs = [1/32];
+end
+
+
+for nom_maillage = maillages
 % lecture du maillage et affichage
 % ---------------------------------
-nom_maillage = 'geomCarre_per.msh';
+nom_maillage = char(nom_maillage);
+fprintf('%s\n', nom_maillage);
 [Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
 
 % ----------------------
@@ -38,7 +60,7 @@ for l=1:Nbtri
   % calcul des matrices elementaires du triangle l 
   
    %Kel=matKvar_elem(S1, S2, S3);
-   Kel=matK_elem(S1, S2, S3);
+   Kel=matK_elem_dynamique(func_A, S1, S2, S3);
            
    Mel=matM_elem(S1, S2, S3);
     
@@ -59,7 +81,7 @@ end % for l
 % -------------------------
 	% A COMPLETER
 	% utiliser la routine f.m
-FF = f(Coorneu(:,1),Coorneu(:,2));
+FF = func_f(Coorneu(:,1),Coorneu(:,2));
 LL = MM*FF;
 
 % Projection sur l espace V_p
@@ -129,10 +151,67 @@ errL2 = sqrt(errU' * (MM * errU));
 % Calcul de l erreur H1
 errH1 = sqrt(errL2^2 + errU' * (KK*errU));
 % A COMPLETER
-printf("erreur L2 = %f et erreur H1 = %f", errL2,errH1);
+fprintf("erreur L2 = %f et erreur H1 = %f\n", errL2,errH1);
 % attention de bien changer le terme source (dans FF)
+
+errsL2 = [errsL2, errL2];
+errsH1 = [errsH1, errH1];
+
 end
 
+end % for nom_maillage
+
+
+if strcmp(validation,'oui')
+
+figure();
+
+% affichage de l'erreur en norme L2
+scatter(-log2(hs), log2(errsL2), 'r', 'DisplayName', 'erreur L2');
+hold on;
+% affichage de l'erreur en norme H1
+scatter(-log2(hs), log2(errsH1), 'b', 'DisplayName', 'erreur H1');
+
+% asymptote L2
+x_last_two = log2(hs(end-1:end));
+y_last_two_L2 = log2(errsL2(end-1:end));
+
+slope_L2 = (y_last_two_L2(2) - y_last_two_L2(1)) / (x_last_two(2) - x_last_two(1));
+intercept_L2 = y_last_two_L2(2) - slope_L2 * x_last_two(2);
+
+x_asymptote_L2 = linspace(min(-log2(hs)), max(-log2(hs)), 128);
+y_asymptote_L2 = -slope_L2 * x_asymptote_L2 + intercept_L2;
+
+plot(x_asymptote_L2, y_asymptote_L2, '--r', 'DisplayName', 'Asymptote L2');
+
+% asymptote H1
+y_last_two_H1 = log2(errsH1(end-1:end));
+
+slope_H1 = (y_last_two_H1(2) - y_last_two_H1(1)) / (x_last_two(2) - x_last_two(1));
+intercept_H1 = y_last_two_H1(2) - slope_H1 * x_last_two(2);
+
+y_asymptote_H1 = -slope_H1 * x_asymptote_L2 + intercept_H1;
+
+plot(x_asymptote_L2, y_asymptote_H1, '--b', 'DisplayName', 'Asymptote H1');
+
+hold off;
+
+legend();
+title('Erreur en fonction de 1/h en échelle log2');
+
+% changement des echelles des axes
+set(gca, 'xticklabel', arrayfun(@(x) ['2^{' num2str(x) '}'], get(gca, 'xtick'), 'UniformOutput', false));
+set(gca, 'yticklabel', arrayfun(@(y) ['2^{' num2str(y) '}'], get(gca, 'ytick'), 'UniformOutput', false));
+
+% changement de la taille de la figure
+set(gcf, 'Position', [100, 100, 1280, 1024]);
+
+% ordre de convergence
+fprintf('Ordre de convergence pour L2: %f\n', slope_L2);
+fprintf('Ordre de convergence pour H1: %f\n', slope_H1);
+
+
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        fin de la routine
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
