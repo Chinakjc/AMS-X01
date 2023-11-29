@@ -10,18 +10,47 @@
 %
 % =====================================================
 
+%Exo 2 Question 7,8
+func_w1_exact = @(x,y) zeros(size(x));
+func_w2_exact = @(x,y) zeros(size(x));
+
+validation = 'non';%'oui';
+
+%valeur de eta
+eta = 2^(-8);
+
+%Exo 2 Question 7,8,9,10
+if strcmp(validation,'oui')
+%Exo 2 Question 7,8
+func_A_list = cell(1, 2); 
+
+func_A_list{1} = @(x,y) 1;
+func_A_list{2} = @(x,y) [1, 0; 0, 2];
+else
+%Exo 2 Question 9,10
+func_A_list = cell(1, 5); 
+
+func_A_list{1} = @(x,y) 1;
+func_A_list{2} = @(x,y) [1, 0; 0, 2];
+func_A_list{3} = @(x,y) [2 + sin(2*pi*x), 0; 0, 4];
+func_A_list{4} = @(x,y) [2 + sin(2*pi*x), 0; 0, 4 + sin(2*pi*x)];
+func_A_list{5} = @(x,y) (2 + sin(2*pi*x)).*(4 + sin(2*pi*y));
+
+end
+
 
 % lecture du maillage et affichage
 % ---------------------------------
-nom_maillage = 'geomCarre_per_cellule.msh';
+nom_maillage = 'validation/geomCarre_per_cellule.msh';
 [Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
 
 % ----------------------
 % calcul des matrices EF
 % ----------------------
 
-%valeur de eta
-eta = 2^(-100);
+for index_func = 1:length(func_A_list)
+
+func_A = func_A_list{index_func};
 
 % declarations
 % ------------
@@ -41,7 +70,7 @@ for l=1:Nbtri
   % calcul des matrices elementaires du triangle l 
   
    %Kel=matKvar_elem(S1, S2, S3);
-   Kel=matK_elem(S1, S2, S3);
+   Kel=matK_elem_dynamique(func_A,S1, S2, S3);
            
    Mel=matM_elem(S1, S2, S3);
     
@@ -134,14 +163,16 @@ Aeff(1,2) = (XX + W1)' * (KK * (YY + W2));
 Aeff(2,1) = (YY + W2)' * (KK * (XX + W1));
 Aeff(2,2) = (YY + W2)' * (KK * (YY + W2));
 
+fprintf('cas %d\n', index_func - 1);
 Aeff 
 
-validation = 'non';
+
 % validation
 % ----------
 if strcmp(validation,'oui')
-W1_exact = zeros(size(Coorneu));%cos(pi*Coorneu(:,1)).*cos(2*pi*Coorneu(:,2));
-W2_exact = zeros(size(Coorneu));
+
+W1_exact = func_w1_exact(Coorneu(:,1), Coorneu(:,2));
+W2_exact = func_w2_exact(Coorneu(:,1), Coorneu(:,2));
 %affiche(UU_exact, Numtri, Coorneu, sprintf('Periodique -exact %s', nom_maillage));
 % Calcul de l erreur L2
 % A COMPLETER
@@ -151,9 +182,11 @@ errL2 = sqrt(errX' * (MM * errX) + errY' * (MM * errY));
 % Calcul de l erreur H1
 errH1 = sqrt(errL2^2 + errX' * (KK*errX) + errY' * (KK*errY));
 % A COMPLETER
-printf("erreur L2 = %f et erreur H1 = %f", errL2,errH1);
+fprintf("erreur L2 = %f et erreur H1 = %f\n", errL2,errH1);
 % attention de bien changer le terme source (dans FF)
 end
+
+end %for index_func
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        fin de la routine

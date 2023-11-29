@@ -10,27 +10,27 @@
 %
 % =====================================================
 
-func_u_exact = @(x,y) cos(pi*x).*cos(2*pi*y); %Question 6,7,9,10
-%func_f = @(x,y) (1+5*pi*pi)*cos(pi*x).*cos(2*pi*y); %Question 6,7
-%func_A = @(x,y) 1; %Question 6,7
+func_u_exact = @(x,y) cos(pi*x).*cos(2*pi*y); %Exo1 Question 6,7,9,10
+%func_f = @(x,y) (1+5*pi*pi)*cos(pi*x).*cos(2*pi*y); %Exo1 Question 6,7
+%func_A = @(x,y) 1; %Exo1 Question 6,7
 
 func_f = @(x, y) 4*pi*pi*cos(pi*x).*cos(2*pi*y).*sin(2*pi*x).*sin(2*pi*y) + ...
                  2*pi*pi*cos(2*pi*x).*cos(2*pi*y).*sin(pi*x).*sin(2*pi*y) + ...
                  5*pi*pi*(sin(2*pi*x).*sin(2*pi*y) + 2).*cos(pi*x).*cos(2*pi*y) + ...
-                 cos(pi*x).*cos(2*pi*y); %Question 9,10,11
+                 cos(pi*x).*cos(2*pi*y); %Exo1 Question 9,10,11
 
-func_A = @(x,y) sin(2*pi*x).*sin(2*pi*y) + 2; %Question 9,10,11
+func_A = @(x,y) sin(2*pi*x).*sin(2*pi*y) + 2; %Exo1 Question 9,10,11
 
-get_A_func = @(epsilon) (@(x,y) func_A(epsilon*x,epsilon*y)); %Question 11
-validation = 'oui'; %Question 6,7,9,10
-avec_epsilons = 'non';%'oui'; %Question 11
+get_A_func = @(epsilon) (@(x,y) func_A(epsilon*x,epsilon*y)); %Exo1 Question 11
+validation = 'oui'; %Exo1 Question 6,7,9,10
+avec_epsilons = 'non';%'oui'; %Exo1 Question 11
 
 errsL2 = [];
 errsH1 = [];
 
 
 
-if strcmp(avec_epsilons,'oui') %Question 11
+if strcmp(avec_epsilons,'oui') %Exo1 Question 11
 validation = 'non';
 epsilons = [2, 4, 8, 16, 32, 64]; 
 else
@@ -55,7 +55,7 @@ fprintf('%s\n', nom_maillage);
 [Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
 
 
-for epsilon = epsilons %boucle sur les epsilons %Question 11
+for epsilon = epsilons %boucle sur les epsilons %Exo1 Question 11
 A_func = get_A_func(epsilon); 
 
 % ----------------------
@@ -116,7 +116,7 @@ affiche(UU, Numtri, Coorneu, sprintf('Neumann - %s', nom_maillage));
 % validation
 % ----------
 
-end %boucle sur les epsilons %Question 11
+end %boucle sur les epsilons %Exo1 Question 11
 
 if strcmp(validation,'oui')
 UU_exact = func_u_exact(Coorneu(:,1),Coorneu(:,2));

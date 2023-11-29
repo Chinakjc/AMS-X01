@@ -10,12 +10,12 @@
 %
 % =====================================================
 
-func_u_exact = @(x,y) cos(pi*x).*cos(2*pi*y);%Question 18
-func_f = @(x,y) (1+5*pi*pi)*cos(pi*x).*cos(2*pi*y); %Question 18
-func_A = @(x,y) 1; %Question 18
+func_u_exact = @(x,y) cos(pi*x).*cos(2*pi*y);%Exo1 Question 18
+func_f = @(x,y) (1+5*pi*pi)*cos(pi*x).*cos(2*pi*y); %Exo1 Question 18
+func_A = @(x,y) 1; %Exo1 Question 18
 
 
-validation = 'oui'; %Question 16
+validation = 'oui'; %Exo1 Question 16
 
 
 errsL2 = [];

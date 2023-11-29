@@ -1,4 +1,4 @@
-function [Kel] = matK_elem(func_A,S1, S2, S3)
+function [Kel] = matK_elem_dynamique(func_A,S1, S2, S3)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % mat_elem :
 % calcul la matrices de raideur elementaire en P1 lagrange

@@ -10,37 +10,51 @@
 %
 % =====================================================
 
-func_u_exact = @(x,y) sin(2*pi*x).*sin(2*pi*y);%Exo1 Question 16
-func_f = @(x,y) (1+8*pi*pi)*sin(2*pi*x).*sin(2*pi*y); %Exo1 Question 16
-func_A = @(x,y) 1; %Exo1 Question 16
+func_u_exact = @(x,y) sin(2*pi*x).*sin(2*pi*y);
+
+%Exo 2 Question 2,3,4
+func_A_list = cell(1, 5); 
+
+func_A_list{1} = @(x,y) 1;
+func_A_list{2} = @(x,y) [1, 0; 0, 2];
+func_A_list{3} = @(x,y) [2 + sin(2*pi*x), 0; 0, 4];
+func_A_list{4} = @(x,y) [2 + sin(2*pi*x), 0; 0, 4 + sin(2*pi*x)];
+func_A_list{5} = @(x,y) (2 + sin(2*pi*x)).*(4 + sin(2*pi*y));
+
+func_f_list = cell(1, 5);
+
+func_f_list{1} = @(x,y) 8*pi^2*sin(2*pi*x).*sin(2*pi*y);
+func_f_list{2} = @(x,y) 12*pi^2*sin(2*pi*x).*sin(2*pi*y);
+func_f_list{3} = @(x,y) -4*pi^2*cos(2*pi*x).*cos(2*pi*x).*sin(2*pi*y) + 4*pi^2*(sin(2*pi*x)+ 2).*sin(2*pi*x).*sin(2*pi*y) + 16*pi^2*sin(2*pi*x).*sin(2*pi*y);
+func_f_list{4} = @(x,y) -4*pi^2*cos(2*pi*x).*cos(2*pi*x).*sin(2*pi*y) + 4*pi^2*(sin(2*pi*x)+ 4).*sin(2*pi*x).*sin(2*pi*y) + 4*pi^2*(sin(2*pi*x)+ 2).*sin(2*pi*x).*sin(2*pi*y);
+func_f_list{5} = @(x,y) -4*pi^2*(sin(2*pi*x)+ 2).*cos(2*pi*y).*cos(2*pi*y).*sin(2*pi*x) - 4*pi^2*(sin(2*pi*y)+ 4).*cos(2*pi*x).*cos(2*pi*x).*sin(2*pi*y) + 8*pi^2*(sin(2*pi*x)+ 2).*(sin(2*pi*y)+ 4).*sin(2*pi*x).*sin(2*pi*y);
 
 
-validation = 'oui'; %Exo1 Question 16
+validation = 'oui';
 
-
-errsL2 = [];
-errsH1 = [];
-
-
-if strcmp(validation,'oui')
-maillages = {"validation/geomCarre2.msh", "validation/geomCarre3.msh", "validation/geomCarre4.msh", "validation/geomCarre5.msh"};
-hs = [1/4, 1/8, 1/16, 1/32];
-else
-maillages = {'validation/geomCarre5.msh'};
-hs = [1/32];
-end
-
-
-for nom_maillage = maillages
 % lecture du maillage et affichage
 % ---------------------------------
-nom_maillage = char(nom_maillage);
+nom_maillage = 'validation/geomCarre4.msh';
 fprintf('%s\n', nom_maillage);
 [Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
 
 % ----------------------
 % calcul des matrices EF
 % ----------------------
+
+
+
+UU_exact = [];
+if strcmp(validation,'oui')
+UU_exact = func_u_exact(Coorneu(:,1),Coorneu(:,2));
+affiche(UU_exact, Numtri, Coorneu, sprintf('Dirichlet -exact %s', nom_maillage));
+end
+
+
+for index_func = 1:length(func_A_list)
+
+func_A = func_A_list{index_func};
+func_f = func_f_list{index_func};
 
 % declarations
 % ------------
@@ -108,11 +122,11 @@ UU = PP'*UU0;
 % -------------
 affiche(UU, Numtri, Coorneu, sprintf('Dirichlet - %s', nom_maillage));
 
+
 % validation
 % ----------
 if strcmp(validation,'oui')
-UU_exact = func_u_exact(Coorneu(:,1),Coorneu(:,2));
-affiche(UU_exact, Numtri, Coorneu, sprintf('Dirichlet -exact %s', nom_maillage));
+
 % Calcul de l erreur L2
 % A COMPLETER
 errU = UU_exact - UU;
@@ -126,65 +140,13 @@ errH1 = sqrt(errL2^2 + errU' * (KK*errU));
 fprintf("erreur L2 = %f et erreur H1 = %f\n", errL2,errH1);
 % attention de bien changer le terme source (dans FF)
 
-errsL2 = [errsL2, errL2];
-errsH1 = [errsH1, errH1];
-
-end
-
-end % for nom_maillage
-
-
-if strcmp(validation,'oui')
-
-figure();
-
-% affichage de l'erreur en norme L2
-scatter(-log2(hs), log2(errsL2), 'r', 'DisplayName', 'erreur L2');
-hold on;
-% affichage de l'erreur en norme H1
-scatter(-log2(hs), log2(errsH1), 'b', 'DisplayName', 'erreur H1');
-
-% asymptote L2
-x_last_two = log2(hs(end-1:end));
-y_last_two_L2 = log2(errsL2(end-1:end));
-
-slope_L2 = (y_last_two_L2(2) - y_last_two_L2(1)) / (x_last_two(2) - x_last_two(1));
-intercept_L2 = y_last_two_L2(2) - slope_L2 * x_last_two(2);
-
-x_asymptote_L2 = linspace(min(-log2(hs)), max(-log2(hs)), 128);
-y_asymptote_L2 = -slope_L2 * x_asymptote_L2 + intercept_L2;
-
-plot(x_asymptote_L2, y_asymptote_L2, '--r', 'DisplayName', 'Asymptote L2');
-
-% asymptote H1
-y_last_two_H1 = log2(errsH1(end-1:end));
-
-slope_H1 = (y_last_two_H1(2) - y_last_two_H1(1)) / (x_last_two(2) - x_last_two(1));
-intercept_H1 = y_last_two_H1(2) - slope_H1 * x_last_two(2);
-
-y_asymptote_H1 = -slope_H1 * x_asymptote_L2 + intercept_H1;
-
-plot(x_asymptote_L2, y_asymptote_H1, '--b', 'DisplayName', 'Asymptote H1');
-
-hold off;
-
-legend();
-title('Erreur en fonction de 1/h en échelle log2');
-
-% changement des echelles des axes
-set(gca, 'xticklabel', arrayfun(@(x) ['2^{' num2str(x) '}'], get(gca, 'xtick'), 'UniformOutput', false));
-set(gca, 'yticklabel', arrayfun(@(y) ['2^{' num2str(y) '}'], get(gca, 'ytick'), 'UniformOutput', false));
-
-% changement de la taille de la figure
-set(gcf, 'Position', [100, 100, 1280, 1024]);
-
-% ordre de convergence
-fprintf('Ordre de convergence pour L2: %f\n', slope_L2);
-fprintf('Ordre de convergence pour H1: %f\n', slope_H1);
 
 
 end
+
+end % for index_func
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        fin de la routine
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
