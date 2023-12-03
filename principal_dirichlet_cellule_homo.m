@@ -174,7 +174,7 @@ fprintf('Calcul de la solution homogénéisée\n');
 
 % lecture du maillage et affichage
 % ---------------------------------
-nom_maillage = 'validation/geomCarre5.msh';
+nom_maillage = 'validation/geomCarre6.msh';
 fprintf('%s\n', nom_maillage);
 [Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
 
@@ -183,6 +183,7 @@ fprintf('%s\n', nom_maillage);
 KK = sparse(Nbpt,Nbpt); % matrice de rigidite
 MM = sparse(Nbpt,Nbpt); % matrice de rigidite
 LL = zeros(Nbpt,1);     % vecteur second membre
+KK_std = sparse(Nbpt,Nbpt); % matrice de rigidite standard
 func_Aeff = @(x,y) Aeff;
 func_f = @(x,y) -(Aeff(1,1)*func_uxx_exact(x,y) + Aeff(1,2)*func_uxy_exact(x,y) + Aeff(2,1)*func_uxy_exact(x,y) + Aeff(2,2)*func_uyy_exact(x,y));
 
@@ -198,7 +199,7 @@ for l=1:Nbtri
   % calcul des matrices elementaires du triangle l 
   
    Kel=matK_elem_dynamique(func_Aeff,S1, S2, S3);
-           
+   Kel_std = matK_elem_old(S1, S2, S3);
    Mel=matM_elem(S1, S2, S3);
     
   % On fait l'assemmblage de la matrice globale et du second membre
@@ -209,6 +210,7 @@ for l=1:Nbtri
           J = tri(j);
           MM(I,J) += Mel(i,j);
           KK(I,J) += Kel(i,j);
+          KK_std(I,J) += Kel_std(i,j);
       end
   end      
 
@@ -286,13 +288,6 @@ end
 
 fprintf('Calcul de la solution ocsillante\n');
 
-% lecture du maillage et affichage
-% ---------------------------------
-nom_maillage = 'validation/geomCarre5.msh';
-fprintf('%s\n', nom_maillage);
-[Nbpt,Nbtri,Coorneu,Refneu,Numtri,Reftri,Nbaretes,Numaretes,Refaretes]=lecture_msh(nom_maillage);
-
-
 for index_eps = 1:size(epsilons,2)
 
 epsilon = epsilons(index_eps);
@@ -301,11 +296,9 @@ fprintf('epsilon = %d\n', epsilon);
 % declarations
 % ------------
 KK = sparse(Nbpt,Nbpt); % matrice de rigidite
-MM = sparse(Nbpt,Nbpt); % matrice de rigidite
 LL = zeros(Nbpt,1);     % vecteur second membre
 func_A_osc = func_A_eps_list{index_eps};
 
-KK_std = sparse(Nbpt,Nbpt); % matrice de rigidite standard
 
 % boucle sur les triangles
 % ------------------------
@@ -319,9 +312,6 @@ for l=1:Nbtri
   % calcul des matrices elementaires du triangle l 
   
    Kel=matK_elem_dynamique(func_A_osc,S1, S2, S3);
-   Kel_std = matK_elem_old(S1, S2, S3);
-           
-   Mel=matM_elem(S1, S2, S3);
     
   % On fait l'assemmblage de la matrice globale et du second membre
   % A COMPLETER
@@ -329,9 +319,7 @@ for l=1:Nbtri
       I = tri(i);
       for j=1:3
           J = tri(j);
-          MM(I,J) += Mel(i,j);
           KK(I,J) += Kel(i,j);
-          KK_std(I,J) += Kel_std(i,j);
       end
   end      
 
